@@ -1,0 +1,43 @@
+{
+  "product": {
+    "id": "uuid-auto-generated",
+    "name": "trimblade rechargeable travel shaver",
+    "description": "a portable rechargeable shaver designed for travel",
+    "category": "beauty",
+    "material": "abs, polycarbonate",
+    "brand": "xd collection",
+
+    "variants": [
+      {
+        "id": "uuid-auto-generated",
+        "product_id": "uuid-auto-generated",
+        "color": "black",
+        "size": "small",
+        "dimensions": {
+          "length_cm": 6.2,
+          "width_cm": 3.1,
+          "height_cm": 8.5
+        },
+
+        "supplier_offers": [
+          {
+            "id": "uuid-auto-generated",
+            "variant_id": "uuid-auto-generated",
+            "supplier": "xd connects",
+            "supplier_sku": "Y3VSPP-1",
+            "currency": "EUR",
+            "stock": 2032,
+
+            "pricing_tiers": [
+              {"from_quantity": 1,   "to_quantity": 24,  "price": 23.54},
+              {"from_quantity": 25,  "to_quantity": 49,  "price": 22.93},
+              {"from_quantity": 50,  "to_quantity": 99,  "price": 22.32},
+              {"from_quantity": 100, "to_quantity": 249, "price": 21.67},
+              {"from_quantity": 500, "to_quantity": null,"price": 20.84}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
