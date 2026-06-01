@@ -1,0 +1,12 @@
+# Ignore Python virtual environments and caches
+.venv/
+**/__pycache__/
+*.pyc
+
+# Strictly ignore local environment variables (Tokens & Passwords)
+.env
+backend/.env
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
