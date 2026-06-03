@@ -30,3 +30,58 @@ def normalize_volume(volume_str: str) -> str:
         return f"{int(val)}ml"
         
     return clean_str
+
+def normalize_dimensions(raw_dimensions: str) -> dict:
+    """
+    Standardises various supplier dimension formats into a unified dictionary structure.
+    Integrates with convert_to_cm to ensure unified metric output in cm.
+
+    """
+    default_structure = {"length": None, "width": None, "height": None, "unit": "cm"}
+    
+    if not raw_dimensions or not isinstance(raw_dimensions, str):
+        return default_structure
+
+    # Detect unit on-the-fly (Default to cm, or detect mm/inches/m)
+    clean_text = raw_dimensions.lower().strip()
+    detected_unit = "cm"
+    if "mm" in clean_text:
+        detected_unit = "mm"
+    elif "inch" in clean_text or "in" in clean_text or '"' in clean_text:
+        detected_unit = "inch"
+    elif "m" in clean_text and "mm" not in clean_text:
+        detected_unit = "m"
+
+    # Extract numbers using Regular Expression (Regex)
+    numbers = [float(n) for n in re.findall(r"[-+]?\d*\.\d+|\d+", clean_text)]
+
+    if not numbers:
+        return default_structure
+
+    # Map numbers and convert them to standard 'cm' using convert_to_cm function
+    try:
+        if len(numbers) >= 3:
+            return {
+                "length": convert_to_cm(numbers[0], detected_unit),
+                "width": convert_to_cm(numbers[1], detected_unit),
+                "height": convert_to_cm(numbers[2], detected_unit),
+                "unit": "cm"
+            }
+        elif len(numbers) == 2:
+            return {
+                "length": convert_to_cm(numbers[0], detected_unit),
+                "width": convert_to_cm(numbers[1], detected_unit),
+                "height": None,
+                "unit": "cm"
+            }
+        elif len(numbers) == 1:
+            return {
+                "length": convert_to_cm(numbers[0], detected_unit),
+                "width": None,
+                "height": None,
+                "unit": "cm"
+            }
+    except Exception:
+        return default_structure
+
+    return default_structure

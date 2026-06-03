@@ -1,3 +1,6 @@
 from .text_normalization import normalize_text
-from .dimensions_normalization import convert_to_cm, normalize_volume
-from .pricing_normalization import normalize_currency_code, standardize_price
+from .pricing_normalization import standardize_price, normalize_currency_code
+from .dimensions_normalization import normalize_dimensions
+from .category_normalization import harmonize_category
+from .material_normalization import normalize_material
+from .deduplication import find_duplicate_candidates

@@ -1,0 +1,72 @@
+{
+  "canonical_taxonomy": {
+    "Drinkware": [
+      "drinkware",
+      "mugs",
+      "cups",
+      "flasks",
+      "bottles",
+      "drinking bottles"
+    ],
+    "Bags & Travel": [
+      "bags & travel",
+      "taschen & reise",
+      "backpacks",
+      "travel bags",
+      "shopper bags"
+    ],
+    "Writing Instruments": [
+      "writing instruments",
+      "schreibgeräte",
+      "pens",
+      "pencils",
+      "ballpoints"
+    ],
+    "Umbrellas": [
+      "umbrellas",
+      "regenschirme"
+    ],
+    "Office & Notebooks": [
+      "portfolios & notebooks",
+      "office accessories",
+      "notebooks",
+      "sticky notes"
+    ],
+    "Technology & Accessories": [
+      "telefon- & tablet-accessoires",
+      "audio",
+      "phone & tablet accessories",
+      "powerbanks",
+      "charging cables",
+      "speakers"
+    ],
+    "Tools & Flashlights": [
+      "werkzeuge & taschenlampen",
+      "tools & flashlights",
+      "pocket knives",
+      "torches"
+    ],
+    "Apparel & Accessories": [
+      "textile",
+      "caps & mützen",
+      "caps & hats",
+      "textiles",
+      "t-shirts",
+      "jackets"
+    ],
+    "Home & Living": [
+      "home & living",
+      "kitchen accessories",
+      "towels",
+      "blankets"
+    ],
+    "Sports & Outdoor": [
+      "sport & fitness",
+      "outdoor",
+      "sports & fitness",
+      "fitness trackers",
+      "coolers"
+    ]
+  },
+  "default_fallback": "Uncategorized"
+}

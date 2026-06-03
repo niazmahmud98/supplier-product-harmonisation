@@ -1,0 +1,69 @@
+{
+  "canonical_colors": {
+    "blue": [
+      "blue",
+      "navy blue",
+      "dark blue",
+      "royal blue",
+      "königsblau",
+      "blau",
+      "light blue",
+      "cyan",
+      "sky blue"
+    ],
+    "gray": [
+      "gray",
+      "grey",
+      "charcoal",
+      "anthracite",
+      "hellgrau",
+      "silbergrau",
+      "light grey",
+      "silver grey"
+    ],
+    "green": [
+      "green",
+      "grün",
+      "minze",
+      "moosgrün",
+      "olivgrün",
+      "mint",
+      "moss green",
+      "olive green",
+      "lime",
+      "dark green"
+    ],
+    "red": [
+      "red",
+      "rot",
+      "burgunderrot",
+      "burgundy red",
+      "crimson",
+      "dark red"
+    ],
+    "white": [
+      "white",
+      "weiß",
+      "weiss"
+    ],
+    "black": [
+      "black",
+      "schwarz"
+    ],
+    "yellow": [
+      "yellow",
+      "gelb"
+    ],
+    "orange": [
+      "orange"
+    ],
+    "brown": [
+      "brown",
+      "braun"
+    ],
+    "beige": [
+      "beige"
+    ]
+  },
+  "default_fallback": "multicolor"
+}

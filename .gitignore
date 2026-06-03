@@ -7,6 +7,10 @@
 .env
 backend/.env
 
+# Ignore large raw data files and local caches (Crucial for GitHub)
+data/
+data/raw/
+
 # Ignore OS files
 .DS_Store
 Thumbs.db
