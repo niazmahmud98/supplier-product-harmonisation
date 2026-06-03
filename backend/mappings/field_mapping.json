@@ -1,0 +1,26 @@
+{
+  "european_sourcing": {
+    "name": "name",
+    "description": "description",
+    "sku": "supplier_reference",
+    "brand": "brand",
+    "color": "colors",
+    "category": "categories"
+  },
+  "xd_connects": {
+    "name": "ItemName",
+    "description": "LongDescription",
+    "sku": "ItemNo",
+    "brand": "Brand",
+    "color": "Color",
+    "category": "MainCategory"
+  },
+  "pf_concept": {
+    "name": "modelName",
+    "description": "description",
+    "sku": "id",
+    "brand": "brand",
+    "color": "color",
+    "category": "category"
+  }
+}
