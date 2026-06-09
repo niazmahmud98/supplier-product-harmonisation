@@ -7,14 +7,14 @@
     "color": "colors",
     "category": "categories"
   },
-  "xd_connects": {
+ "xd_connects": {
     "name": "ItemName",
     "description": "LongDescription",
-    "sku": "ItemNo",
+    "sku": "ItemCode",
     "brand": "Brand",
     "color": "Color",
     "category": "MainCategory"
-  },
+},
   "pf_concept": {
     "name": "modelName",
     "description": "description",

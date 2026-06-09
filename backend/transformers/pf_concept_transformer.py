@@ -11,110 +11,132 @@ from normalization import normalize_text, standardize_price, normalize_currency_
 class PFConceptTransformer(BaseTransformer):
     """
     Transformer subclass for PF Concept.
-    Handles extraction of prices from highly complex multi-tier price matrices
-    (PFCPriceFeed -> priceInfo -> models -> items -> objectPrices -> scales).
+    Handles two feed types:
+      - PFCPriceFeed -> priceInfo -> models -> model[] -> items[] -> item[] -> scales[]
+      - PFCStockFeed -> stockFeed -> models -> model[] -> items[] -> item[] -> stockDirect
     """
 
     def __init__(self):
-        # Initialise base class with the unique supplier key
         super().__init__(supplier_key="pf_concept")
 
-    def transform(self, raw_data: list) -> list:
+    def _extract_models(self, raw_data: dict) -> tuple:
         """
-        Transforms raw PF Concept deep-nested price matrices into standardized formats.
-        Accepts the parsed dictionary/list payload and flattens it out.
+        Detects feed type (price or stock) and extracts the models list.
+        Returns (models_list, feed_type) where feed_type is 'price' or 'stock'.
         """
+        if "PFCPriceFeed" in raw_data:
+            feed = raw_data["PFCPriceFeed"]
+            info = feed.get("priceInfo", [])
+            feed_type = "price"
+        elif "PFCStockFeed" in raw_data:
+            feed = raw_data["PFCStockFeed"]
+            info = feed.get("stockFeed", [])
+            feed_type = "stock"
+        else:
+            return [], "unknown"
+
+        if not info or not isinstance(info, list):
+            return [], feed_type
+
+        models_container = info[0].get("models", [])
+        if not models_container or not isinstance(models_container, list):
+            return [], feed_type
+
+        # models is a wrapper list — actual model array is inside first element
+        if "model" in models_container[0]:
+            return models_container[0]["model"], feed_type
+
+        return models_container, feed_type
+
+    def transform(self, raw_data) -> list:
         canonical_products = []
         if not raw_data:
             return []
 
-        # PF Concept pricing feed structure is typically wrapped inside an object
-        # Let's extract the actual models array dynamically based on structural hierarchy
-        models_list = []
-        if isinstance(raw_data, dict):
-            price_feed = raw_data.get("PFCPriceFeed", {})
-            price_info = price_feed.get("priceInfo", [{}])
-            if price_info and isinstance(price_info, list):
-                models_container = price_info[0].get("models", [])
-                if models_container and "model" in models_container[0]:
-                    models_list = models_container[0]["model"]
-                else:
-                    models_list = models_container
-        elif isinstance(raw_data, list):
+        # Handle list input (fallback)
+        if isinstance(raw_data, list):
             models_list = raw_data
+            feed_type = "price"
+        elif isinstance(raw_data, dict):
+            models_list, feed_type = self._extract_models(raw_data)
+        else:
+            return []
 
-        # Reading keys from our field mapping layer loaded by parent class
-        name_key = self.field_mappings.get("name", "modelName")
-        sku_key = self.field_mappings.get("sku", "id")
+        # Field mapping keys from parent class
+        sku_key = self.field_mappings.get("sku", "modelcode")
 
         for model in models_list:
             if not isinstance(model, dict):
                 continue
 
-            # Extract basic identifiers at the model level
-            raw_name = model.get(name_key, "")
-            raw_sku = model.get(sku_key, "")
-
-            # If model name or SKU is blank, fallback to item level identifiers
-            clean_name = normalize_text(raw_name) if raw_name else ""
+            # Model-level fields — stock feed uses 'modelCode', price feed uses 'modelcode'
+            raw_sku = model.get(sku_key) or model.get("modelCode") or model.get("modelcode", "")
             clean_sku = str(raw_sku).strip().upper() if raw_sku else ""
+            clean_desc = normalize_text(model.get("description", "No description available."))
 
-            # Standard currency accumulator
-            currency_iso = "EUR"
-
-            # Traverse down the multi-tier product data structure
-            items = model.get("items", [{}])
-            for item in items:
-                if not isinstance(item, dict):
+            # items[] is a wrapper list, actual products are inside 'item' key
+            for items_container in model.get("items", []):
+                if not isinstance(items_container, dict):
                     continue
 
-                # If model root level SKU was missing, use item number as SKU
-                if not clean_sku and item.get("itemNo"):
-                    clean_sku = str(item.get("itemNo")).strip().upper()
-
-                object_prices = item.get("objectPrices", [])
-                for obj_price in object_prices:
-                    if not isinstance(obj_price, dict):
+                for item in items_container.get("item", []):
+                    if not isinstance(item, dict):
                         continue
 
-                    standardized_prices = []
-                    scales = obj_price.get("scales", [])
-                    
-                    for scale in scales:
-                        if not isinstance(scale, dict):
-                            continue
+                    # Item-level SKU fallback
+                    item_sku = clean_sku or str(item.get("itemCode") or item.get("itemcode", "")).strip().upper()
 
-                        # Extract currency code from scale node
-                        raw_currency = scale.get("currency", "EUR")
+                    if feed_type == "price":
+                        # Extract currency and scales from item
+                        raw_currency = item.get("currency", "EUR")
                         currency_iso = normalize_currency_code(raw_currency)
 
-                        # Parse pricing bounds
-                        raw_qty = scale.get("quantityFrom", 1)
-                        raw_price = scale.get("nettPrice", 0.0)
+                        standardized_prices = []
+                        for scale in item.get("scales", []):
+                            if not isinstance(scale, dict):
+                                continue
+                            standardized_prices.append({
+                                "minimum_quantity": int(scale.get("quantityFrom", 1)),
+                                "price": standardize_price(scale.get("nettPrice", 0.0))
+                            })
 
-                        standardized_prices.append({
-                            "minimum_quantity": int(raw_qty),
-                            "price": standardize_price(raw_price)
-                        })
+                        if not standardized_prices:
+                            continue
 
-                    # If we found valid prices, assemble the canonical record
-                    if standardized_prices:
-                        # Sort pricing matrix by minimum_quantity
                         standardized_prices = sorted(standardized_prices, key=lambda x: x["minimum_quantity"])
 
-                        # Assemble into unified standard canonical structure
-                        canonical_item = {
+                        canonical_products.append({
                             "supplier": "PF Concept",
-                            "sku": clean_sku,
-                            "name": clean_name if clean_name else f"Product {clean_sku}",
-                            "description": normalize_text(model.get("description", "No description available.")),
+                            "sku": item_sku,
+                            "name": f"Product {item_sku}",
+                            "description": clean_desc,
                             "brand": normalize_text(model.get("brand", "Generic")).title(),
-                            "category": normalize_text(model.get("category", "Uncategorized")).title(),
+                            # "category": normalize_text(model.get("category", "Uncategorized")).title(),
+                            "category": str(item.get("groupDesc", "Uncategorized")),
                             "color": normalize_text(item.get("color", "multicolor")).lower(),
                             "currency": currency_iso,
                             "pricing_matrix": standardized_prices
-                        }
+                        })
 
-                        canonical_products.append(canonical_item)
+                    elif feed_type == "stock":
+                        # Stock feed has no pricing — build stock-only record
+                        stock_direct = item.get("stockDirect", 0)
+                        stock_next_po = item.get("stockNextPo", 0)
+
+                        canonical_products.append({
+                            "supplier": "PF Concept",
+                            "sku": item_sku,
+                            "name": f"Product {item_sku}",
+                            "description": clean_desc,
+                            "brand": "Generic",
+                            # "category": "Uncategorized",
+                            "category": str(item.get("groupDesc", "Uncategorized")),
+                            "color": "multicolor",
+                            "currency": "EUR",
+                            "pricing_matrix": [],
+                            "stock_direct": stock_direct,
+                            "stock_next_po": stock_next_po,
+                            "stock_location": item.get("stockLocation", "")
+                        })
 
         return canonical_products

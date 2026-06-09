@@ -13,14 +13,16 @@
       "taschen & reise",
       "backpacks",
       "travel bags",
-      "shopper bags"
+      "shopper bags",
+      "luggage - travel"
     ],
     "Writing Instruments": [
       "writing instruments",
       "schreibgeräte",
       "pens",
       "pencils",
-      "ballpoints"
+      "ballpoints",
+      "pens - writing"
     ],
     "Umbrellas": [
       "umbrellas",
@@ -30,7 +32,8 @@
       "portfolios & notebooks",
       "office accessories",
       "notebooks",
-      "sticky notes"
+      "sticky notes",
+      "hobbies"
     ],
     "Technology & Accessories": [
       "telefon- & tablet-accessoires",
@@ -38,7 +41,8 @@
       "phone & tablet accessories",
       "powerbanks",
       "charging cables",
-      "speakers"
+      "speakers",
+      "high-tech - audio video"
     ],
     "Tools & Flashlights": [
       "werkzeuge & taschenlampen",
@@ -52,20 +56,32 @@
       "caps & hats",
       "textiles",
       "t-shirts",
-      "jackets"
+      "jackets",
+      "textile - fashion - accessories"
     ],
     "Home & Living": [
       "home & living",
       "kitchen accessories",
       "towels",
-      "blankets"
+      "blankets",
+      "house",
+      "ecology - ethics",
+      "beauty - wellness"
     ],
     "Sports & Outdoor": [
       "sport & fitness",
       "outdoor",
       "sports & fitness",
       "fitness trackers",
-      "coolers"
+      "coolers",
+      "sports"
+    ],
+    "Car & Safety": [
+      "car & safety"
+    ],
+    "Lanyards & Keychains": [
+      "lanyards & keychains",
+      "lanyards & schlüsselanhänger"
     ]
   },
   "default_fallback": "Uncategorized"

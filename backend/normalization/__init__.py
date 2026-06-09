@@ -3,4 +3,3 @@ from .pricing_normalization import standardize_price, normalize_currency_code
 from .dimensions_normalization import normalize_dimensions
 from .category_normalization import harmonize_category
 from .material_normalization import normalize_material
-from .deduplication import find_duplicate_candidates
