@@ -88,7 +88,8 @@ def run_harmonisation_pipeline():
 
                 # Step B: Apply harmonisation rules
                 for item in standardized_batch:
-                    item["category"] = harmonize_category(item.get("category", ""))
+                    if item.get("category") == "Uncategorized":
+                        item["category"] = harmonize_category(item.get("category", ""), item.get("name", ""))
                     item["material"] = normalize_material(item.get("description", "") or item.get("name", ""))
 
                 print(f"Harmonized {len(standardized_batch)} items from {file_name}.")

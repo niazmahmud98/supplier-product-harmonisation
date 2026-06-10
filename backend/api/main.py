@@ -56,10 +56,12 @@ def get_db():
 
 @app.get("/products", summary="Get all harmonized products with advanced filters")
 def get_products(
-    category: Optional[str] = Query(None, description="Filter exactly by product category"),
-    supplier: Optional[str] = Query(None, description="Filter products supplied by a specific supplier name"),
-    in_stock: Optional[bool] = Query(None, description="True: returns only available variants, False: returns out-of-stock"),
-    search: Optional[str] = Query(None, description="Case-insensitive keyword search in product name or description"),
+    category: Optional[str] = Query(None),
+    supplier: Optional[str] = Query(None),
+    in_stock: Optional[bool] = Query(None),
+    search: Optional[str] = Query(None),
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(20, ge=1, le=100, description="Results per page"),
     db: Session = Depends(get_db)
 ):
     # Base Query with eager loading optimized for the renamed 'Harmonized' tables setup
@@ -103,7 +105,18 @@ def get_products(
                 filtered_products.append(p)
         return filtered_products
 
-    return products
+  # Pagination
+    total = len(products)
+    start = (page - 1) * limit
+    end = start + limit
+
+    return {
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "total_pages": -(-total // limit),  # ceiling division
+        "products": products[start:end]
+    }
 
 
 @app.get("/products/{product_id}", summary="Get a single product by its UUID")
@@ -197,3 +210,28 @@ def get_data_quality_score(db: Session = Depends(get_db)):
         "successfully_categorized": categorized_count,
         "flagged_uncategorized_records": uncategorized_count
     }
+@app.get("/quality/uncategorized", summary="Get uncategorized products grouped by supplier")
+def get_uncategorized_by_supplier(db: Session = Depends(get_db)):
+    uncategorized = db.query(Product).filter(
+        Product.category.ilike("Uncategorized")
+    ).options(
+        joinedload(Product.variants).joinedload(Variant.offers)
+    ).all()
+
+    # Create group according to supplier
+    supplier_map = {}
+    for p in uncategorized:
+        suppliers = set()
+        for v in p.variants:
+            for o in v.offers:
+                if o.supplier:
+                    suppliers.add(o.supplier)
+        for s in suppliers:
+            if s not in supplier_map:
+                supplier_map[s] = []
+            supplier_map[s].append(p.name)
+
+    return [
+        {"supplier": supplier, "count": len(products), "sample_products": products}
+        for supplier, products in sorted(supplier_map.items())
+    ]

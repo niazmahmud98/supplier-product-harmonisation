@@ -6,7 +6,12 @@
       "cups",
       "flasks",
       "bottles",
-      "drinking bottles"
+      "drinking bottles",
+      "espresso mug",
+      "titanium cup",
+      "water bottle",
+      "sports bottle",
+      "insulated bottle"
     ],
     "Bags & Travel": [
       "bags & travel",
@@ -14,7 +19,13 @@
       "backpacks",
       "travel bags",
       "shopper bags",
-      "luggage - travel"
+      "luggage - travel",
+      "crossbody bag",
+      "toiletry bag",
+      "cooler bag",
+      "pocket bag",
+      "travelling backpack",
+"travelling"
     ],
     "Writing Instruments": [
       "writing instruments",
@@ -22,7 +33,9 @@
       "pens",
       "pencils",
       "ballpoints",
-      "pens - writing"
+      "pens - writing",
+      "pocket pen",
+      "infinity pen"
     ],
     "Umbrellas": [
       "umbrellas",
@@ -42,13 +55,33 @@
       "powerbanks",
       "charging cables",
       "speakers",
-      "high-tech - audio video"
+      "high-tech - audio video",
+      "audio glasses",
+      "earbuds",
+      "anc earbuds",
+      "usb cable",
+      "phone stand",
+      "speaker",
+"wireless speaker",
+      "personal alarm",
+      "powerbank",
+"solar powerbank",
+"watch",
+"alarm",
+"cable",
+"audio glasses",
+"earbuds",
+"speaker"
     ],
     "Tools & Flashlights": [
       "werkzeuge & taschenlampen",
       "tools & flashlights",
       "pocket knives",
-      "torches"
+      "torches",
+      "head torch",
+      "motion sensor",
+      "multi-function pliers",
+      "air pump"
     ],
     "Apparel & Accessories": [
       "textile",
@@ -66,7 +99,23 @@
       "blankets",
       "house",
       "ecology - ethics",
-      "beauty - wellness"
+      "beauty - wellness",
+      "mortar",
+      "grater",
+      "chopping board",
+      "corkscrew",
+      "champagne stopper",
+      "pepper mill",
+      "salt mill",
+      "pourer",
+      "stopper",
+      "cutlery",
+      "oil pourer",
+      "cutter",
+      "vinegar pourer",
+      "double mill",
+"salt mill",
+"pepper mill"
     ],
     "Sports & Outdoor": [
       "sport & fitness",
@@ -74,14 +123,22 @@
       "sports & fitness",
       "fitness trackers",
       "coolers",
-      "sports"
+      "sports",
+      "camping",
+      "trail",
+      "outdoor cutlery",
+      "titanium"
     ],
     "Car & Safety": [
       "car & safety"
     ],
     "Lanyards & Keychains": [
       "lanyards & keychains",
-      "lanyards & schlüsselanhänger"
+      "lanyards & schlüsselanhänger",
+      "keychain",
+"camera",
+"keychain",
+"keychain camera"
     ]
   },
   "default_fallback": "Uncategorized"
