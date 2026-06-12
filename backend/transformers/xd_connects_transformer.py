@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from transformers.base_transformer import BaseTransformer
-from normalization import normalize_text, standardize_price
+from normalization import normalize_text, standardize_price, normalize_material
 
 
 class XDConnectsTransformer(BaseTransformer):
@@ -134,6 +134,7 @@ class XDConnectsTransformer(BaseTransformer):
                 "color": translated_color,
                 "currency": "EUR",  # XD Connects baseline default currency code
                 "pricing_matrix": standardized_prices,
+                "material": normalize_material(item.get("Material", "").split(",")[0]) or "Unknown",
             }
 
             canonical_products.append(canonical_item)

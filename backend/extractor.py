@@ -15,26 +15,22 @@ XD_PRODUCTS = os.getenv("XD_CONNECTS_PRODUCTS_URL")
 XD_PRICES = os.getenv("XD_CONNECTS_PRICES_URL")
 XD_STOCK = os.getenv("XD_CONNECTS_STOCK_URL")
 
+PF_PRODUCTS = os.getenv("PF_CONCEPT_PRODUCTS_URL")
 PF_PRICE = os.getenv("PF_CONCEPT_PRICE_URL")
 PF_STOCK = os.getenv("PF_CONCEPT_STOCK_URL")
 
-# This class acts as the universal interface for all supplier extractors.
-#Base class providing core extraction utilities, error handling, and file caching.
-
 
 class BaseExtractor:
-   
 
     def fetch(self, url, method="GET", headers=None, body=None):
         """Fetches data from a specific API endpoint with built-in retry logic."""
-        for i in range(3):  # Retry up to 3 times on failure
+        for i in range(3):
             try:
                 if method == "GET":
                     response = requests.get(url, headers=headers)
                 else:
                     response = requests.post(url, headers=headers, json=body)
 
-                # Checking the response status code
                 if response.status_code == 200:
                     return response.json()
 
@@ -47,24 +43,25 @@ class BaseExtractor:
         return None
 
     def save(self, data, path):
-        #Caches raw API responses locally into structured JSON files.
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
 
     def log(self, msg):
-        #Standardized logger for tracing extraction steps.
         print(f"[EXTRACTOR] {msg}")
 
     def fetch_all(self):
-     #Interface method to be overridden by child supplier extractors.
         raise NotImplementedError("Each supplier extractor must implement fetch_all method.")
 
 
 class EuropeanSourcingExtractor(BaseExtractor):
-   #Handles paginated POST requests to extract European Sourcing sandbox data.
 
     def fetch_all(self):
+        # Guard: check credentials before proceeding
+        if not EU_TOKEN or not EU_URL:
+            self.log("ERROR: European Sourcing credentials not set in .env")
+            return
+
         headers = {
             "x-auth-token": EU_TOKEN,
             "Content-Type": "application/json"
@@ -76,7 +73,7 @@ class EuropeanSourcingExtractor(BaseExtractor):
         pricing_list = []
 
         page = 0
-        max_pages = 10  # Controlled sample size (approx. 500 products) for profiling
+        max_pages = 10
 
         self.log("Starting European Sourcing extraction...")
 
@@ -104,21 +101,18 @@ class EuropeanSourcingExtractor(BaseExtractor):
             for p in products:
                 products_list.append(p)
 
-                # Unpack nested structures from variant objects
                 for v in p.get("variants", []):
                     variants_list.append(v)
 
                     if "stock" in v:
                         stock_list.append(v["stock"])
 
-                    # Corrected key mapping for nested multi-tiered matrix pricing
                     if "variant_prices" in v:
                         pricing_list.append(v["variant_prices"])
 
             page += 1
             self.log(f"Page {page} processed -> Total products collected: {len(products_list)}")
 
-        # Cache raw components locally
         self.save(products_list, "data/raw/european_sourcing/products.json")
         self.save(variants_list, "data/raw/european_sourcing/variants.json")
         self.save(stock_list, "data/raw/european_sourcing/stock.json")
@@ -128,9 +122,13 @@ class EuropeanSourcingExtractor(BaseExtractor):
 
 
 class XDConnectsExtractor(BaseExtractor):
-   #Extracts catalog, price, and stock feeds from XD Connects endpoints.
 
     def fetch_all(self):
+        # Guard: check credentials before proceeding
+        if not XD_PRODUCTS or not XD_PRICES or not XD_STOCK:
+            self.log("ERROR: XD Connects URLs not set in .env")
+            return
+
         self.log("Starting XD Connects extraction...")
 
         products = self.fetch(XD_PRODUCTS)
@@ -148,10 +146,23 @@ class XDConnectsExtractor(BaseExtractor):
 
 
 class PFConceptExtractor(BaseExtractor):
-    #Extracts price matrices and inventory status feeds from PF Concept endpoints.
 
     def fetch_all(self):
+        # Guard: check credentials before proceeding
+        if not PF_PRICE or not PF_STOCK:
+            self.log("ERROR: PF Concept URLs not set in .env")
+            return
+
         self.log("Starting PF Concept extraction...")
+
+        # Fetch product feed — provides name, category, color, material, brand
+        if PF_PRODUCTS:
+            products = self.fetch(PF_PRODUCTS)
+            if products:
+                self.save(products, "data/raw/pf_concept/products.json")
+                self.log("PF Concept product feed saved.")
+        else:
+            self.log("WARNING: PF_CONCEPT_PRODUCTS_URL not set — skipping product feed.")
 
         prices = self.fetch(PF_PRICE)
         stock = self.fetch(PF_STOCK)
@@ -165,12 +176,10 @@ class PFConceptExtractor(BaseExtractor):
 
 
 if __name__ == "__main__":
-    # Initialize all pipelines
     eu_extractor = EuropeanSourcingExtractor()
     xd_extractor = XDConnectsExtractor()
     pf_extractor = PFConceptExtractor()
 
-    # Execute extraction
     eu_extractor.fetch_all()
     xd_extractor.fetch_all()
     pf_extractor.fetch_all()

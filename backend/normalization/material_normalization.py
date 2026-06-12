@@ -40,6 +40,8 @@ def normalize_material(raw_material: str) -> str:
         return "Aluminum"
     if "wood" in clean_mat or "holz" in clean_mat:
         return "Wood"
+    if "pet" in clean_mat and ("recycelt" in clean_mat or "recycled" in clean_mat):
+        return "Recycled PET"
 
     # General fallback if no match is found, keeping it clean with title case
-    return raw_material.strip().title()
+    return "Unknown"
